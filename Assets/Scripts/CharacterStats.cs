@@ -5,7 +5,20 @@ using UnityEngine;
 public class CharacterStats : MonoBehaviour
 {
     public int maxHealth = 100;
-    public int currentHealth;
+    private int currentHealth;
+
+    public int CurrentHealth
+    { 
+        get 
+        { 
+            return currentHealth;
+        }
+      //  set
+      //  {
+      //      currentHealth = value;
+      //  }
+    
+    }
 
     public int damage;
     public int armor;
@@ -15,6 +28,8 @@ public class CharacterStats : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+        StartCoroutine(HealthIncrease());
+        // StopCoroutine(HealthIncrease());
     }
 
     public virtual void TakeDamage(int damage)
@@ -34,6 +49,36 @@ public class CharacterStats : MonoBehaviour
         {
             Die();
         }
+    }
+
+    public virtual void RestoreHealth(int restore)
+    {
+        // currentHealth += restore;
+        // Anti overheal
+        currentHealth = Mathf.Clamp(currentHealth + restore, 0, int.MaxValue);
+
+        if (OnHealthChanged != null)
+        {
+            OnHealthChanged(maxHealth, currentHealth);
+        }
+    }
+
+    IEnumerator HealthIncrease()
+    {
+        Debug.Log("Start Coroutine");
+
+        for(int x = 1; x <=maxHealth; x++) 
+        {
+            currentHealth = x;
+            if (OnHealthChanged != null)
+            {
+                OnHealthChanged(maxHealth, currentHealth);
+            }
+
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        
     }
 
     public virtual void Die()
